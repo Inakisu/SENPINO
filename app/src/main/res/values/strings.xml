@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">SENPINO</string>
+    <string name="title_home">Principal</string>
+    <string name="title_dashboard">Tendencia</string>
+    <string name="title_dispositivos">Dispositivos</string>
+    <string name="title_cuenta">Cuenta</string>
+</resources>
