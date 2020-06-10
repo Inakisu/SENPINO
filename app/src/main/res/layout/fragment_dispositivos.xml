@@ -29,17 +29,17 @@
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
         android:clickable="true"
-        app:backgroundTint="#E100897B"
+        app:backgroundTint="@color/colorPrimary"
         app:layout_constraintBottom_toTopOf="@+id/text_addDispositivo"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:srcCompat="@drawable/ic_adddispositivo" />
+        app:srcCompat="@drawable/ic_add_circle" />
 
     <TextView
         android:id="@+id/text_addDispositivo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="56dp"
+        android:layout_marginBottom="64dp"
         android:fontFamily="@font/comfortaa"
         android:text="Añadir dispositivo"
         android:textAlignment="center"

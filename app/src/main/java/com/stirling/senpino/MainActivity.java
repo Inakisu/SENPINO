@@ -98,31 +98,15 @@ public class MainActivity extends AppCompatActivity {
             }
         }*/ //también se puede filtrar por dirección MAC pero no nos interesa
 
-        if (scanner != null) {
+        Bluetooth.getInstance().escanearBt(filters);
+
+        /*if (scanner != null) {
             scanner.startScan(filters, scanSettings, scanCallback);
             Log.d(TAG, "Scan started.");
         }  else {
             Log.e(TAG, "Could not get scanner object.");
-        }
+        }*/
     }
 
-    private final ScanCallback scanCallback = new ScanCallback() {
-        @Override
-        public void onScanResult(int callbackType, ScanResult result) {
-            BluetoothDevice device = result.getDevice();
-            // ...do whatever you want with this found device
-            //Guardamos el dispositivo encontrado en una lista de dispositivos encontrados -- Habrá que limpiar dicha lista en algún momento?
 
-        }
-
-        @Override
-        public void onBatchScanResults(List<ScanResult> results) {
-            // Ignore for now
-        }
-
-        @Override
-        public void onScanFailed(int errorCode) {
-            // Ignore for now
-        }
-    };
 }
