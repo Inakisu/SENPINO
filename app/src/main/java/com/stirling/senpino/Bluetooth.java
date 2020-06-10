@@ -38,6 +38,8 @@ public class Bluetooth {
     public boolean escaneando = false; //IZ
     private static Bluetooth bluetooth;
 
+    private String connectoToAddress;
+
     private ArrayList<BluetoothLE> aDevices = new ArrayList<>();
 
   //  public BLE_UUID uuids = new BLE_UUID();
@@ -76,21 +78,21 @@ public class Bluetooth {
         return CaracterísticaPeso;
     }
     public void setCaracterísticaPeso(BluetoothGattCharacteristic característicaPeso) {
-        CaracterísticaPeso = característicaPeso;
-    }
+        CaracterísticaPeso = característicaPeso;    }
     public BluetoothGattCharacteristic getCaracterísticaFecha() {
         return CaracterísticaFecha;
     }
     public void setCaracterísticaFecha(BluetoothGattCharacteristic característicaFecha) {
-        CaracterísticaFecha = característicaFecha;
-    }
+        CaracterísticaFecha = característicaFecha;    }
     public BluetoothGattCharacteristic getCaracterísticaUsuario() {
         return CaracterísticaUsuario;
     }
     public void setCaracterísticaUsuario(BluetoothGattCharacteristic característicaUsuario) {
-        CaracterísticaUsuario = característicaUsuario;
+        CaracterísticaUsuario = característicaUsuario;    }
+    public String getConnectoToAddress() {        return connectoToAddress;    }
+    public void setConnectoToAddress(String connectoToAddress) {
+        this.connectoToAddress = connectoToAddress;
     }
-
 
     //Getters and setters
     public BluetoothDevice getBluetoothDevice() {
@@ -181,7 +183,6 @@ public class Bluetooth {
         public void onScanResult(int callbackType, ScanResult result) {
             aDevices.add(new BluetoothLE( result.getDevice().getName(),
                     result.getDevice().getAddress(),result.getRssi(), result.getDevice()));
-
         }
         @Override
         public void onScanFailed(int errorCode) {
@@ -245,14 +246,18 @@ public class Bluetooth {
     };
 
     //Realiza la conexion GATT (Generic attribute profile) -> se encarga del intercambio de los datos mediante características y servicios
-    private boolean connectGatt(final String address, Context context) {
+    public boolean connectGatt(String address, Context context) {
         if (bluetoothAdapter == null || address == null) {
             return false;
         }
         if (bluetoothGatt != null) {
             if (bluetoothGatt.connect()) {
+                Toast.makeText(context, "Conexión BLE establecida", Toast.LENGTH_SHORT).show();
+                ble_conectado = true;
                 return true;
             } else {
+                Toast.makeText(context, "Error en la conexión BLE", Toast.LENGTH_SHORT).show();
+                ble_conectado = false;
                 return false;
             }
         }
@@ -260,9 +265,11 @@ public class Bluetooth {
         if (device == null) {
             return false;
         }
-        bluetoothGatt = device.connectGatt(context, false, mGattCallback);
+        bluetoothGatt = device.connectGatt(context, true, mGattCallback);
         return bluetoothGatt.connect();
     }
+
+
 
     //Controla los eventos Bluetooth
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {

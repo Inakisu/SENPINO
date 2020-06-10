@@ -142,9 +142,16 @@ public class BluetoothActivity extends AppCompatActivity {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 //Stop progressbar animation
                 progressBar2.setVisibility(View.GONE);
+                botonBuscar.setVisibility(View.VISIBLE);
                 final String info = ((TextView) view).getText().toString();
+
                 //Get device MAC address on click
                 String dirMAC = info.substring(info.length()-17);
+                Log.i("TAG", "Selected devices' mac address: " + dirMAC);
+
+                //Connect to selected device
+//                bt.setConnectoToAddress(dirMAC);
+                Bluetooth.getInstance().connectGatt(dirMAC, getBaseContext());
 
                 //.................................................
             }
