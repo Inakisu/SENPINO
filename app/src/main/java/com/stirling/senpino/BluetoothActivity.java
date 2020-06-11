@@ -35,7 +35,6 @@ import android.widget.Toast;
 
 //import org.apache.commons.codec.DecoderException;
 //import org.apache.commons.codec.binary.Hex;
-import com.stirling.senpino.Models.BluetoothLE;
 
 import org.json.JSONObject;
 

@@ -25,7 +25,6 @@ import android.widget.Toast;
 
 //import com.example.tiflotecnica_tresfocos.Globales.BLE_UUID;
 import com.stirling.senpino.FuncionesGlobales;
-import com.stirling.senpino.Models.BluetoothLE;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -44,7 +43,7 @@ public class Bluetooth extends AppCompatActivity {
     private Handler mHandler = new Handler();
     private String connectoToAddress;
 
-    private ArrayList<BluetoothLE> aDevices = new ArrayList<>();
+    private ArrayList<BluetoothDevice> aDevices = new ArrayList<>();
 
   //  public BLE_UUID uuids = new BLE_UUID();
 
@@ -127,7 +126,7 @@ public class Bluetooth extends AppCompatActivity {
     public BluetoothGattCharacteristic getTimerFoco3Caracteristica() {
         return timerFoco3Caracteristica;
     }
-    public ArrayList<BluetoothLE> getaDevices() {
+    public ArrayList<BluetoothDevice> getaDevices() {
         return aDevices;
     }
     public boolean isEscaneando() {   return escaneando;    }

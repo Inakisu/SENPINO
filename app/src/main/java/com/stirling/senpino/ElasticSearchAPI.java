@@ -1,9 +1,9 @@
 package com.stirling.senpino;
 
-import com.stirling.senpino.Models.HitsObjects.HitsObjectD;
-import com.stirling.senpino.Models.POJOs.RespuestaB;
-import com.stirling.senpino.Models.POJOs.RespuestaU;
-import com.stirling.senpino.Models.gson2pojo.Example;
+//import com.stirling.senpino.Models.HitsObjects.HitsObjectD;
+//import com.stirling.senpino.Models.POJOs.RespuestaB;
+//import com.stirling.senpino.Models.POJOs.RespuestaU;
+//import com.stirling.senpino.Models.gson2pojo.Example;
 
 import java.util.Map;
 
@@ -17,7 +17,7 @@ import retrofit2.http.POST;
 
 public interface ElasticSearchAPI {
 
-    //Llamada para buscar dispositivos. Headermap para autenticacion y body para query json
+    /*//Llamada para buscar dispositivos. Headermap para autenticacion y body para query json
     @POST("/stf_dispositivo/_search")
     Call<HitsObjectD> searchDispositivo(@HeaderMap Map<String, String> headers,
                                         @Body RequestBody params);
@@ -56,7 +56,7 @@ public interface ElasticSearchAPI {
     //Llamada para obtener información acerca de una medición. Con aggregations
     @POST("/mediciones_sukaldatzen/_search?filter_path=aggregations.myAgg.hits.hits._source*")
     Call<Example> searchHitsAgg(@HeaderMap Map<String, String> headers,
-                                @Body RequestBody params);
+                                @Body RequestBody params);*/
 
     //Llamada para introducir una medición nueva en la base de datos
     @POST("/mediciones_sukaldatzen/_doc")

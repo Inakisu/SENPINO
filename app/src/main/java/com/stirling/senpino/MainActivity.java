@@ -72,47 +72,4 @@ public class MainActivity extends AppCompatActivity {
                 }
             };
 
-    private void escanearDispositivos(){
-         BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter(); //adapt. BT
-         BluetoothLeScanner scanner = adapter.getBluetoothLeScanner();
-
-        ScanSettings scanSettings = new ScanSettings.Builder() //opciones de escaneo
-                .setScanMode(ScanSettings.SCAN_MODE_BALANCED) //modo low power: busca 0.5 segs pausa de 4.5 segs. Balanced: busca 2 segs pausa de 2 segs. Low_latency: búsqueda contínua
-                .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES)
-                .setMatchMode(ScanSettings.MATCH_MODE_AGGRESSIVE) //agresivo en la búsqueda de disps. Los muestra aunque tenga baja señal...
-                .setNumOfMatches(ScanSettings.MATCH_NUM_ONE_ADVERTISEMENT) // One advertisement is enough for a match
-                .setReportDelay(0L)
-                .build();
-
-        List<ScanFilter> filters = null;
-        /*if(serviceUUIDs != null) { //si filtramos por UUID
-            filters = new ArrayList<>();
-            for (UUID serviceUUID : serviceUUIDs) {
-                ScanFilter filter = new ScanFilter.Builder()
-                        .setServiceUuid(new ParcelUuid(serviceUUID))
-                        .build();
-                filters.add(filter);
-            }
-        }*/
-        /*if(names != null) { //Si filtramos por el nombre del dispositivo
-            filters = new ArrayList<>();
-            for (String name : names) {
-                ScanFilter filter = new ScanFilter.Builder()
-                        .setDeviceName(name)
-                        .build();
-                filters.add(filter);
-            }
-        }*/ //también se puede filtrar por dirección MAC pero no nos interesa
-
-//        Bluetooth.getInstance().escanearBt(filters);
-
-        /*if (scanner != null) {
-            scanner.startScan(filters, scanSettings, scanCallback);
-            Log.d(TAG, "Scan started.");
-        }  else {
-            Log.e(TAG, "Could not get scanner object.");
-        }*/
-    }
-
-
 }
