@@ -17,6 +17,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.AsyncTask;
+import android.os.Handler;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
@@ -28,16 +30,18 @@ import com.stirling.senpino.Models.BluetoothLE;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import static android.content.ContentValues.TAG;
 
 
-public class Bluetooth {
+public class Bluetooth extends AppCompatActivity {
 
+    private static final long SCAN_PERIOD = 5000;
     public boolean ble_conectado = false;
     public boolean escaneando = false; //IZ
     private static Bluetooth bluetooth;
-
+    private Handler mHandler = new Handler();
     private String connectoToAddress;
 
     private ArrayList<BluetoothLE> aDevices = new ArrayList<>();
@@ -71,6 +75,7 @@ public class Bluetooth {
     BluetoothGattCharacteristic CaracterísticaPeso;
     BluetoothGattCharacteristic CaracterísticaFecha;
     BluetoothGattCharacteristic CaracterísticaUsuario;
+    Context MainContext;
     Context contexto;
 
     //Getters y setters
@@ -144,6 +149,10 @@ public class Bluetooth {
         return bluetooth;
     }
 
+    public Bluetooth ( Context context ){
+        this.MainContext = context;
+    }
+
     //Busqueda de dispositivos Bluetooth
     public void findDevices(Context context) {
         if (bluetoothDevice==null){
@@ -152,111 +161,61 @@ public class Bluetooth {
         }
 
     }
-
-    //IZ: Buscamos dispositivos y los añadimos a un arrayList
-    public void escanearBt(List<ScanFilter> filters){
-        BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
-        BluetoothLeScanner scanner = adapter.getBluetoothLeScanner();
-
-        if (scanner != null) {
-            //Filtros de búsqueda por parámetro
-
-            //Opciones de escaneos
-            ScanSettings scanSettings = new ScanSettings.Builder()
-                    .setScanMode(ScanSettings.SCAN_MODE_BALANCED) //balanceado: escanea durante 2 segs y pausa de 3segs
-                    .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES)
-                    .setMatchMode(ScanSettings.MATCH_MODE_AGGRESSIVE)
-                    .setNumOfMatches(ScanSettings.MATCH_NUM_ONE_ADVERTISEMENT)
-                    .setReportDelay(0L)
-                    .build();
-
-           // scanner.startScan(filters, scanSettings, scanCallback);
-
-            Log.d(TAG, "scan started");
-        }  else {
-            Log.e(TAG, "could not get scanner object");
-        }
-    }
-    // IZ: Device scan callback.
-    private ScanCallback leScanCallback = new ScanCallback() {
-        @Override
-        public void onScanResult(int callbackType, ScanResult result) {
-            aDevices.add(new BluetoothLE( result.getDevice().getName(),
-                    result.getDevice().getAddress(),result.getRssi(), result.getDevice()));
-        }
-        @Override
-        public void onScanFailed(int errorCode) {
-            Log.e(TAG, "BT scan error with code: " + errorCode);
-        }
-    };
-
     /**
-     * Starts scanning for bt devices
-     * */
-    public void startScanning() {
-        System.out.println("start scanning");
+     * IZ: Starts scanning for a limited period of time.
+     * @param enable if true, it enables scanning. If false, it stops scanning
+     */
+    public void scanLeDevice(final boolean enable, Context context) {
+        if (enable) {
+            mHandler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    escaneando = false;
+                    bluetoothAdapter.stopLeScan(mLeScanCallback);
 
-        AsyncTask.execute(new Runnable() {
-            @Override
-            public void run() {
-                btScanner.startScan(leScanCallback);
-            }
-        });
-    }
-
-    /**
-     * Stops scanning
-     * */
-    public void stopScanning() {
-        System.out.println("stopping scanning");
-
-        AsyncTask.execute(new Runnable() {
-            @Override
-            public void run() {
-                btScanner.stopScan(leScanCallback);
-            }
-        });
+                }
+            }, SCAN_PERIOD);
+            escaneando = true;
+            bluetoothAdapter.startLeScan(mLeScanCallback);
+        } else {
+            escaneando = false;
+            bluetoothAdapter.stopLeScan(mLeScanCallback);
+        }
     }
 
     //Recibe los dispositivos Bluetooth encontrados e intenta la conexión si es el que se busca
     BroadcastReceiver discoveryResult = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            String address, name;
-            BluetoothDevice remoteDevice;
-            remoteDevice = bluetoothAdapter.getRemoteDevice("00:A0:50:02:D6:8E"); //getRemoteDevice funciona con la direccion MAC del dispositivo
-            name = remoteDevice.getName();
-            address = remoteDevice.getAddress();
-            contexto = context;
-            if(address!=null){
-                if(remoteDevice.getAddress().equals("00:A0:50:02:D6:8E") && name.equals( "Tiflo")){
-                    bluetoothAdapter.cancelDiscovery();
-                    bluetoothDevice=remoteDevice;
-
-                    bluetoothCallback = new BluetoothGattCallback() {
-                        @Override
-                        public void onServicesDiscovered(BluetoothGatt gatt, int status) {
-                            super.onServicesDiscovered(gatt, status);
-                        }
-                    };
-                    connectGatt("00:A0:50:02:D6:8E", context);//Se conecta mediante direccion MAC del dispositivo
+            Set<BluetoothDevice> setBLEDevice = bluetoothAdapter.getBondedDevices();
+            if(setBLEDevice.size() > 0){
+                for(BluetoothDevice btDevice : setBLEDevice){
+                    connectGatt(btDevice.getAddress(), context);
                 }
             }
         }
     };
 
     //Realiza la conexion GATT (Generic attribute profile) -> se encarga del intercambio de los datos mediante características y servicios
-    public boolean connectGatt(String address, Context context) {
+    public boolean connectGatt(String address, final Context context) {
         if (bluetoothAdapter == null || address == null) {
             return false;
         }
         if (bluetoothGatt != null) {
             if (bluetoothGatt.connect()) {
-                Toast.makeText(context, "Conexión BLE establecida", Toast.LENGTH_SHORT).show();
+                /*runOnUiThread(new Runnable() {
+                    public void run() {
+                        Toast.makeText(getBaseContext(), "Conexión BLE establecida", Toast.LENGTH_SHORT).show();
+                    }//todo Obtener contexto adecuado
+                });*/
                 ble_conectado = true;
                 return true;
             } else {
-                Toast.makeText(context, "Error en la conexión BLE", Toast.LENGTH_SHORT).show();
+                /*runOnUiThread(new Runnable() {
+                    public void run() {
+                        Toast.makeText(getBaseContext(), "Error en la conexión BLE", Toast.LENGTH_SHORT).show();
+                    }
+                });*/
                 ble_conectado = false;
                 return false;
             }
@@ -277,9 +236,22 @@ public class Bluetooth {
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
 
             if (newState == BluetoothProfile.STATE_CONNECTED) {
+                /*runOnUiThread(new Runnable() {
+                    public void run() {
+                        Toast.makeText(contexto, "Conexión BLE establecida", Toast.LENGTH_SHORT).show();
+                    }
+                });*/
+                //stop discovering devices
+                bluetoothAdapter.cancelDiscovery();
                 //bluetooth is connected so discover services
                 bluetoothGatt.discoverServices();
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+                /*runOnUiThread(new Runnable() {
+                    public void run() {
+                        Toast.makeText(contexto, "Conexión BLE finalizada", Toast.LENGTH_SHORT).show();
+                    }
+                });*/
+
                 //Bluetooth is disconnected
                 bluetoothGatt.disconnect();
                 bluetoothGatt.close();
@@ -288,6 +260,7 @@ public class Bluetooth {
                 bluetoothGatt.disconnect();
                 bluetoothGatt.close();
             }
+
         }
 
         //Guarda los servicios y características descubiertos en variables
@@ -338,7 +311,11 @@ public class Bluetooth {
             }
             if (status!=BluetoothGatt.GATT_SUCCESS){
                 bluetoothGatt.disconnect();
-                Toast.makeText(contexto, "ERROR DE CONEXIÓN", Toast.LENGTH_SHORT).show();
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        Toast.makeText(contexto, "Error de conexión al leer características", Toast.LENGTH_SHORT).show();
+                    }
+                });
                 System.exit(0);
                 return;
             }
@@ -412,6 +389,26 @@ public class Bluetooth {
             }
         }
 
+    };
+    private BluetoothAdapter.LeScanCallback mLeScanCallback = new BluetoothAdapter.LeScanCallback() {
+        @Override
+        public void onLeScan(final BluetoothDevice device, final int rssi, byte[] scanRecord) {
+            runOnUiThread(new Runnable() {
+                public void run() {
+                    Set<BluetoothDevice> setBLEDevice = bluetoothAdapter.getBondedDevices();
+                    if(setBLEDevice.size() > 0){
+                        for(BluetoothDevice btDevice : setBLEDevice){
+                            if (btDevice.getAddress().equals(device.getAddress())) {
+                                connectGatt(btDevice.getAddress(), getBaseContext());
+                            }
+                        }
+
+                    }else{
+
+                    }
+                }
+            });
+        }
     };
 
     //Escribe el valor de potencia en la característica

@@ -8,6 +8,7 @@ import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
 import android.bluetooth.le.ScanSettings;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -33,12 +34,17 @@ public class MainActivity extends AppCompatActivity {
 
     private String TAG = "TAG";
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         BottomNavigationView bottomNav = findViewById(R.id.nav_view);
         bottomNav.setOnNavigationItemSelectedListener(navListener);
+
+        //Search for previously bonded devices
+//        Bluetooth.getInstance().findDevices(getApplicationContext());
+        Bluetooth.getInstance().scanLeDevice(true, getApplicationContext());
 
     }
 
@@ -98,7 +104,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }*/ //también se puede filtrar por dirección MAC pero no nos interesa
 
-        Bluetooth.getInstance().escanearBt(filters);
+//        Bluetooth.getInstance().escanearBt(filters);
 
         /*if (scanner != null) {
             scanner.startScan(filters, scanSettings, scanCallback);
