@@ -13,6 +13,8 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
@@ -23,7 +25,9 @@ import com.stirling.senpino.ui.notifications.DispositivosFragment;
 
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity
+        implements BottomNavigationView.OnNavigationItemSelectedListener {
+
 
 
 
@@ -40,36 +44,41 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         BottomNavigationView bottomNav = findViewById(R.id.nav_view);
-        bottomNav.setOnNavigationItemSelectedListener(navListener);
+        bottomNav.setOnNavigationItemSelectedListener(this);
+
+        setInitialFragment();
 
         //Search for previously bonded devices
-//        Bluetooth.getInstance().findDevices(getApplicationContext());
-        Bluetooth.getInstance().scanLeDevice(true, getApplicationContext());
-
+        Bluetooth.getInstance().findDevices(this);
+//        Bluetooth.getInstance().scanLeDevice(true, this);
+        //It should connect to previously bonded devices stored in Android BT cache
     }
+    @Override
+    public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+        Fragment selectedFragment = null;
 
-    private BottomNavigationView.OnNavigationItemSelectedListener navListener =
-            new BottomNavigationView.OnNavigationItemSelectedListener() {
-                @Override
-                public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-                    Fragment selectedFragment = null;
+        switch (menuItem.getItemId()) {
+            case R.id.navigation_home: //id del boton del bottomNavigationBar
+                selectedFragment = new HomeFragment();
+                break;
+            case R.id.navigation_dashboard:
+                selectedFragment = new DashboardFragment();
+                break;
+            case R.id.navigation_notifications:
+                selectedFragment = new DispositivosFragment();
+                break;
+        }
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        fragmentManager.beginTransaction().replace(R.id.frame_layout,
+                selectedFragment).commit();
 
-                    switch (menuItem.getItemId()) {
-                        case R.id.navigation_home: //id del boton del bottomNavigationBar
-                            selectedFragment = new HomeFragment();
-                            break;
-                        case R.id.navigation_dashboard:
-                            selectedFragment = new DashboardFragment();
-                            break;
-                        case R.id.navigation_notifications:
-                            selectedFragment = new DispositivosFragment();
-                            break;
-                    }
-                    getSupportFragmentManager().beginTransaction().replace(R.id.nav_host_fragment,
-                            selectedFragment).commit();
-
-                    return true;
-                }
-            };
+        return true;
+    }
+    //Stablishes the fragment to be shown on app launch
+    private void setInitialFragment() {
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.add(R.id.frame_layout, new HomeFragment());
+            fragmentTransaction.commit();
+            }
 
 }

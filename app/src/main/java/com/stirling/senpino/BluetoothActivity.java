@@ -55,6 +55,8 @@ public class BluetoothActivity extends AppCompatActivity {
     private Handler mHandler;
     private ListView foundDevicesListView;
     private ProgressBar progressBar2;
+    BluetoothDevice selDevice;
+    private ArrayList<BluetoothLE> arBLEFound;
     private Button botonBuscar;
     private BluetoothAdapter mBluetoothAdapter;
     private ArrayList<BluetoothDevice> foundDevices;
@@ -65,7 +67,7 @@ public class BluetoothActivity extends AppCompatActivity {
     private String mElasticSearchPassword = Constants.elasticPassword;
     private Retrofit retrofit;
     private ElasticSearchAPI searchAPI;
-    private Bluetooth bt;
+    Bluetooth bt;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,6 +76,13 @@ public class BluetoothActivity extends AppCompatActivity {
                 Context.MODE_PRIVATE);
         setContentView(R.layout.activity_bluetooth);
         mHandler = new Handler();
+        bt = new Bluetooth(this   );
+
+        //Verificamos que el Bluetooth esté encendido, y si no lo está, pedimos encenderlo
+        if(mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()){
+            Intent enableIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableIntent, REQUEST_ENABLE_BT);
+        }
 
         // Use this check to determine whether BLE is supported on the device.  Then you can
         // selectively disable BLE-related features.
@@ -85,15 +94,17 @@ public class BluetoothActivity extends AppCompatActivity {
         // BluetoothAdapter through BluetoothManager.
         final BluetoothManager bluetoothManager =
                 (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
-        mBluetoothAdapter = bluetoothManager.getAdapter();
+//        mBluetoothAdapter = bluetoothManager.getAdapter();
+        //Obtenemos instancia Bluetooth
+        bt = Bluetooth.getInstance(this);
+        mBluetoothAdapter = bt.getBluetoothAdapter();
         // Checks if Bluetooth is supported on the device.
         if (mBluetoothAdapter == null) {
             Toast.makeText(this, R.string.error_bluetooth_not_supported, Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
-        //Obtenemos instancia Bluetooth
-        bt.getInstance();
+
 
         //Inicializamos la API
         //inicializarAPI(); //todavía no implementado
@@ -130,9 +141,23 @@ public class BluetoothActivity extends AppCompatActivity {
                 if(!foundDevicesNamesAdapter.isEmpty()){
                     foundDevicesNamesAdapter.clear();
                 }
-               scanLeDevice(true);
-                botonBuscar.setVisibility(View.GONE);
-                progressBar2.setVisibility(View.VISIBLE);
+                if(bt.isReadyForScan()){
+                    bt.scanLeDevice(true);
+                    botonBuscar.setVisibility(View.GONE);
+                    progressBar2.setVisibility(View.VISIBLE);
+                    mHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            progressBar2.setVisibility(View.GONE);
+                            botonBuscar.setVisibility(View.VISIBLE);
+                            //Obtenemos lista de dispositivos encontrados
+                            arBLEFound = bt.getListDevices();
+                            //Convertimos a String para poder mostrarlos en la ListView de disp. encont.
+                            fromDeviceToString(arBLEFound);
+                        }
+                    }, bt.getScanPeriod());
+                }
+
             }
         });
 
@@ -149,12 +174,18 @@ public class BluetoothActivity extends AppCompatActivity {
                 Log.i("TAG", "Selected devices' mac address: " + dirMAC);
 
                 //Connect to selected device
-//                bt.setConnectoToAddress(dirMAC);
-                Bluetooth.getInstance().connectGatt(dirMAC, getBaseContext());
+              for (BluetoothLE bte : arBLEFound){
+                    if(bte.getMacAddress().equals(dirMAC)){
+                        selDevice = bte.getDevice();
+                        break;
+                    }
+                }
+                bt.connect(selDevice);
 
                 //.................................................
             }
         });
+
 
     }
 
@@ -163,10 +194,10 @@ public class BluetoothActivity extends AppCompatActivity {
      * @param arrayEncBTDevice array of btDevices from wich we want to get names
      */
     //Transformar disp. Bluetooth a información en String
-    private void fromDeviceToString(ArrayList<BluetoothDevice> arrayEncBTDevice){
+    private void fromDeviceToString(ArrayList<BluetoothLE> arrayEncBTDevice){
         ArrayList<String> arrayEncString = new ArrayList<String>();
-        for(BluetoothDevice bluetoothLE : arrayEncBTDevice){
-            String aString = bluetoothLE.getName() +"\n"+bluetoothLE.getAddress();
+        for(BluetoothLE bluetoothLE : arrayEncBTDevice){
+            String aString = bluetoothLE.getName() +"\n"+bluetoothLE.getMacAddress();
             //arrayEncString.add(aString);
             foundDevicesNames.add(aString);
         }
@@ -193,34 +224,7 @@ public class BluetoothActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * IZ: Starts scanning for a limited period of time.
-     * @param enable if true, it enables scanning. If false, it stops scanning
-     */
-    private void scanLeDevice(final boolean enable) {
-        if (enable) {
-            mHandler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    mScanning = false;
-                    mBluetoothAdapter.stopLeScan(mLeScanCallback);
 
-                    fromDeviceToString(foundDevices);
-                    foundDevicesListView.setAdapter(foundDevicesNamesAdapter);
-                    foundDevicesNamesAdapter.notifyDataSetChanged();
-
-                    botonBuscar.setVisibility(View.VISIBLE);
-                    progressBar2.setVisibility(View.GONE);
-                }
-            }, SCAN_PERIOD);
-            mScanning = true;
-            mBluetoothAdapter.startLeScan(mLeScanCallback);
-        } else {
-            mScanning = false;
-            mBluetoothAdapter.stopLeScan(mLeScanCallback);
-        }
-        invalidateOptionsMenu();
-    }
 
     /**
      * IZ :Necessary permissions for using Bluetooth are asked
@@ -260,38 +264,7 @@ public class BluetoothActivity extends AppCompatActivity {
             }
         }
     }
-    // Device scan callback.
-    private BluetoothAdapter.LeScanCallback mLeScanCallback =
-            new BluetoothAdapter.LeScanCallback() {
-                @Override
-                public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord) {
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            //Store found device in foundDevices list if its new
-                            if(foundDevices.size() > 0) {
 
-                                boolean isNewItem = true;
-
-                                for (int i = 0; i < foundDevices.size(); i++) {
-                                    if (foundDevices.get(i).getAddress().equals(device.getAddress())
-                                            || device.getName() == null) {
-                                        isNewItem = false;
-                                    }
-                                }
-
-                                if(isNewItem) {
-                                    foundDevices.add(device);
-                                }
-
-                            }else{
-                                foundDevices.add(device);
-                            }
-
-                        }
-                    });
-                }
-            };
 }
 
 
