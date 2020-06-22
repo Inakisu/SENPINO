@@ -21,6 +21,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.stirling.senpino.ui.dashboard.DashboardFragment;
 import com.stirling.senpino.ui.home.HomeFragment;
@@ -98,6 +99,8 @@ public class MainActivity extends AppCompatActivity
             scanLeDevice(true);
         }
         //It should connect to previously bonded devices stored in Android BT cache
+
+
     }
 
     @Override
@@ -183,7 +186,7 @@ public class MainActivity extends AppCompatActivity
         if (mBluetoothGatt == null) {
             Log.i("BLEFrag", "Attempting to connect to device " + device.getName() +
                     " (" + device.getAddress() + ")");
-            mBluetoothGatt = device.connectGatt(this, false, gattCallback,
+            mBluetoothGatt = device.connectGatt(this, true, gattCallback,
                     TRANSPORT_LE);
             try {
                 sleep(600);
@@ -208,12 +211,23 @@ public class MainActivity extends AppCompatActivity
                     Log.i("BLEFrag", "STATE_CONNECTED");
                     cambioConectado = true;
                     gatt.discoverServices();
+                    runOnUiThread(new Runnable(){
+                        public void run() {
+                            Toast.makeText(getApplicationContext(), "Dispositivo CONECTADO", Toast.LENGTH_SHORT).show();
+                        }
+                    });
                     break;
                 case BluetoothProfile.STATE_DISCONNECTED:
+                    //when disconnected, start searching for devices again
                     if (macbt != null && !isScanning() && bDevice==null) {
                         scanLeDevice(true);
                     }
                     cambioDesconectado = true;
+                    runOnUiThread(new Runnable(){
+                        public void run() {
+                            Toast.makeText(getApplicationContext(), "Dispositivo DESconectado", Toast.LENGTH_SHORT).show();
+                        }
+                    });
 //                    tvTemperature.setText("-- ºC");
                     Log.e("BLEFrag", "STATE_DISCONNECTED");
                     break;
