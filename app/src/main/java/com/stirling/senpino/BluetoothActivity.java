@@ -157,7 +157,7 @@ public class BluetoothActivity extends AppCompatActivity {
                         }
                     }, bt.getScanPeriod());
                 }
-
+                foundDevicesListView.setAdapter(foundDevicesNamesAdapter);
             }
         });
 
@@ -182,7 +182,24 @@ public class BluetoothActivity extends AppCompatActivity {
                 }
                 bt.connect(selDevice);
 
-                //.................................................
+                Log.i("Conectando con device","esto va después de ble.connect");
+
+                //Comprobamos conexión con el dispositivo
+                if(!bt.isConnected()){
+                    Toast.makeText(BluetoothActivity.this,
+                            "No se ha podido conectar con el dispositivo",
+                            Toast.LENGTH_SHORT).show();
+                }else{
+                    SharedPreferences.Editor editor = preferences.edit();
+                    editor.putString("macbt", selDevice.getAddress());
+                    editor.commit();
+                    bt.disconnect();
+                    Intent intentA = new Intent (foundDevicesListView.getContext(), MainActivity.class);
+                    intentA.putExtra("btdevice", selDevice);
+                    startActivity(intentA);
+
+                    finish();
+                }
             }
         });
 

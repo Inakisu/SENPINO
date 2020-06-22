@@ -1,8 +1,6 @@
 package com.stirling.senpino.ui.home;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,25 +8,24 @@ import android.widget.TextView;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProviders;
 
-import com.stirling.senpino.BluetoothActivity;
-import com.stirling.senpino.MainActivity;
 import com.stirling.senpino.R;
 
 public class HomeFragment extends Fragment {
 
-    private TextView textoUsuario;
-    private TextView textoPeso;
-    private TextView textoTimestamp;
+    private TextView textUser;
+    private TextView textWeight;
+    private TextView textTimestamp;
 
-    public TextView getTextoUsuario() {return textoUsuario;    }
-    public void setTextoUsuario(TextView textoUsuario) {    this.textoUsuario = textoUsuario;    }
-    public TextView getTextoPeso() {        return textoPeso;    }
-    public void setTextoPeso(TextView textoPeso) {        this.textoPeso = textoPeso;    }
-    public TextView getTextoTimestamp() {        return textoTimestamp;    }
-    public void setTextoTimestamp(TextView textoTimestamp) {this.textoTimestamp = textoTimestamp;}
+    public String getTextUser() {return textUser.getText().toString();}
+    public void setTextUser(String text) {
+        textUser.setText(text);}
+    public String getTextWeight() {return textWeight.getText().toString();}
+    public void setTextWeight(String text) {
+        textWeight.setText(text);}
+    public String getTextTimestamp() {return textTimestamp.getText().toString();}
+    public void setTextTimestamp(String text) {
+        textTimestamp.setText(text);}
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -39,9 +36,12 @@ public class HomeFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstance){
         super.onViewCreated(view, savedInstance);
 
-        textoUsuario = (TextView) view.findViewById(R.id.textValorUsuario);
-        textoPeso = (TextView) view.findViewById(R.id.textValorPeso);
-        textoTimestamp = (TextView) view.findViewById(R.id.textValorTimestamp);
+        textUser = (TextView) view.findViewById(R.id.textValorUsuario);
+        textWeight = (TextView) view.findViewById(R.id.textValorPeso);
+        textTimestamp = (TextView) view.findViewById(R.id.textValorTimestamp);
+
+    }
+    public void updateVars(){
 
     }
 }

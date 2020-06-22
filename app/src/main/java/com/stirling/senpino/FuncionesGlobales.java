@@ -35,33 +35,33 @@ public class FuncionesGlobales {
 
     //Leer valores de las características e inicializar los valores de la cocina
     public static void inicializarCocina(){
-        caracteristica = Bluetooth.getInstance().getPotenciaFoco1Caracteristica();
+       /* caracteristica = Bluetooth.getInstance().getPotenciaFoco1Caracteristica();
         read=false;
         Bluetooth.getInstance().getBluetoothGatt().readCharacteristic(caracteristica);
         while (!read){}
-        read=false;
+        read=false;*/
 //        Cocina.getInstance().getFocos().get(Cocina.FOCO_UNO).setPotencia(FuncionesGlobales.convertirValorLectura(caracteristica));
 
-        caracteristica = Bluetooth.getInstance().getTimerFoco1Caracteristica();
+       /* caracteristica = Bluetooth.getInstance().getTimerFoco1Caracteristica();
         read=false;
 
         Bluetooth.getInstance().getBluetoothGatt().readCharacteristic(caracteristica);
         while (!read){}
-        read=false;
+        read=false;*/
 //        Cocina.getInstance().getFocos().get(Cocina.FOCO_UNO).setTiempo(FuncionesGlobales.convertirValorLectura(caracteristica));
 
-        caracteristica = Bluetooth.getInstance().getPotenciaFoco2Caracteristica();
+        /*caracteristica = Bluetooth.getInstance().getPotenciaFoco2Caracteristica();
         read=false;
         Bluetooth.getInstance().getBluetoothGatt().readCharacteristic(caracteristica);
         while (!read){}
-        read=false;
+        read=false;*/
 //        Cocina.getInstance().getFocos().get(Cocina.FOCO_DOS).setPotencia(FuncionesGlobales.convertirValorLectura(caracteristica));
 
-        caracteristica = Bluetooth.getInstance().getTimerFoco2Caracteristica();
+        /*caracteristica = Bluetooth.getInstance().getTimerFoco2Caracteristica();
         read=false;
         Bluetooth.getInstance().getBluetoothGatt().readCharacteristic(caracteristica);
         while (!read){}
-        read=false;
+        read=false;*/
 //        Cocina.getInstance().getFocos().get(Cocina.FOCO_DOS).setTiempo(FuncionesGlobales.convertirValorLectura(caracteristica));
 
         /*
@@ -170,13 +170,13 @@ public class FuncionesGlobales {
 
     //Apgado de encimera. Resetea todas las características a 0
     public static void apagarEncimera() {
-        write=false;
+        /*write=false;
         Bluetooth.getInstance().escribirPotencia(0, Bluetooth.getInstance().getPotenciaFoco1Caracteristica());
         while (!write){}
         write=false;
         Bluetooth.getInstance().escribirPotencia(0, Bluetooth.getInstance().getPotenciaFoco2Caracteristica());
         while (!write){}
-        write=false;
+        write=false;*/
 
         /*
         Bluetooth.getInstance().escribirPotencia(0, Bluetooth.getInstance().getPotenciaFoco3Caracteristica());
@@ -187,12 +187,12 @@ public class FuncionesGlobales {
         write=false;
         */
 
-        Bluetooth.getInstance().escribirTiempo(0, Bluetooth.getInstance().getTimerFoco1Caracteristica());
+        /*Bluetooth.getInstance().escribirTiempo(0, Bluetooth.getInstance().getTimerFoco1Caracteristica());
         while (!write){}
         write=false;
         Bluetooth.getInstance().escribirTiempo(0, Bluetooth.getInstance().getTimerFoco2Caracteristica());
         while (!write){}
-        write=false;
+        write=false;*/
 
         /*Bluetooth.getInstance().escribirTiempo(0, Bluetooth.getInstance().getTimerFoco3Caracteristica());
         */

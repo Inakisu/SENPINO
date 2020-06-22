@@ -34,10 +34,10 @@ import static android.content.ContentValues.TAG;
 
 public class Bluetooth extends AppCompatActivity {
 
-    private String serviceUUID = "4fafc201-1fb5-459e-4fca-c5c9c331789b";
+/*    private String serviceUUID = "4fafc201-1fb5-459e-4fca-c5c9c331789b";
     private String userUUID = "beb5483e-36e1-4688-b7fa-eb07361b26a4";
     private String weightUUID = "beb5483e-36e1-4688-b7fa-eb07361b26a5";
-    private String timestampUUID = "beb5483e-36e1-4688-b7fa-eb07361b26a6";
+    private String timestampUUID = "beb5483e-36e1-4688-b7fa-eb07361b26a6";*/
 
 
     private static boolean mScanning            = false;
@@ -225,7 +225,8 @@ public class Bluetooth extends AppCompatActivity {
     public void connect(BluetoothDevice device){
         if (mBluetoothGatt == null && !isConnected()) {
 //            bleCallback = _bleCallback;
-            mBluetoothGatt = device.connectGatt(act, false, mGattCallback);
+            Log.i("Bluetooth","connect() executed");
+            mBluetoothGatt = device.connectGatt(act, true, mGattCallback); //en silam estaba en false y aún así se conectaba
         }
         try {
             Log.d("en connect","******Time sleep 3 seconds");
@@ -239,12 +240,12 @@ public class Bluetooth extends AppCompatActivity {
 
     public void disconnect(){
         if (mBluetoothGatt != null && isConnected()) {
+            Log.i("Bluetooth","disconnect() executed");
             mBluetoothGatt.close();
             mBluetoothGatt = null;
         }
     }
     public boolean isReadyForScan(){
-
         return Permissions.checkPermisionStatus(act, Manifest.permission.BLUETOOTH)
                 && Permissions.checkPermisionStatus(act, Manifest.permission.BLUETOOTH_ADMIN)
                 && Permissions.checkPermisionStatus(act, Manifest.permission.ACCESS_COARSE_LOCATION)
@@ -258,13 +259,15 @@ public class Bluetooth extends AppCompatActivity {
             public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
 
                 if (newState == BluetoothProfile.STATE_CONNECTED) {
-//                    Log.i("BluetoothLEHelper", "Attempting to start service discovery: "
-//                            + mBluetoothGatt.discoverServices());
+                    Log.i("BluetoothLEHelper", "Attempting to start service discovery: "
+                            + mBluetoothGatt.discoverServices());
                     mConnectionState = STATE_CONNECTED;
+                    Log.i("Bluetooth", "onConnectionStateChange: CONNECTED");
                 }
 
                 if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                     mConnectionState = STATE_DISCONNECTED;
+                    Log.i("Bluetooth", "onConnectionStateChange: DISCONNECTED");
                 }
                 try{
                     //bleCallback.onBleConnectionStateChange(gatt, status, newState);
@@ -301,12 +304,17 @@ public class Bluetooth extends AppCompatActivity {
         };
     }
 
-    public boolean isConnected(){
-        return mConnectionState == STATE_CONNECTED;
+    public boolean isConnected(){ return mConnectionState == STATE_CONNECTED;  }
+    public boolean isScanning(){
+        return mScanning;
     }
+    public ArrayList<BluetoothLE> getListDevices(){
+        return aDevices;
+    }
+    public long getScanPeriod(){return SCAN_PERIOD; }
 
     //Escribe el valor de potencia en la característica
-    public void escribirPotencia(int potencia, BluetoothGattCharacteristic caracteristica){
+    /*public void escribirPotencia(int potencia, BluetoothGattCharacteristic caracteristica){
         byte value = (byte)potencia;
         if (potencia!=0) {
             caracteristica.setValue(new byte[]{value, 0});
@@ -316,10 +324,10 @@ public class Bluetooth extends AppCompatActivity {
             caracteristica.setValue(new byte[] {0, 0});
             Bluetooth.getInstance(act).getBluetoothGatt().writeCharacteristic(caracteristica);
         }
-    }
+    }*/
 
     //Escribe el valor del tiempo en la característica
-    public void escribirTiempo(int tiempo, BluetoothGattCharacteristic caracteristica){
+    /*public void escribirTiempo(int tiempo, BluetoothGattCharacteristic caracteristica){
         if (tiempo!=0){
             FuncionesGlobales.convertirHexadecimal(tiempo,0);
             String hex = FuncionesGlobales.hexadecimal;
@@ -334,13 +342,8 @@ public class Bluetooth extends AppCompatActivity {
             caracteristica.setValue(new byte[] {0, 0});
             Bluetooth.getInstance(act).getBluetoothGatt().writeCharacteristic(caracteristica);
         }
-    }
+    }*/
 
-    public ArrayList<BluetoothLE> getListDevices(){
-        return aDevices;
-    }
-    public long getScanPeriod(){
-        return SCAN_PERIOD;
-    }
+
 
 }
