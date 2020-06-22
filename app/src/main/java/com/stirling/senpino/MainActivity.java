@@ -272,24 +272,26 @@ public class MainActivity extends AppCompatActivity
                                          BluetoothGattCharacteristic characteristic, int status) {
             Log.i("onCharRead","Entered onCharacteristicRead");
 
-            if(characteristic.getUuid().toString().equals(UUID.fromString(userUUID))){
+
+
+            if(characteristic.getUuid().toString().equals(userUUID)){
                 Log.i("onCharRead","read user characteristic");
 
 //                tempString = characteristic.getStringValue(0);
 //                temp = Integer.parseInt(tempString);
 //                Log.i("BLEFragOnCharRead", "Characteristic: " + tempString); //dataInput
-            }else if(characteristic.getUuid().toString().equals(UUID.fromString(weightUUID))){
+            }else if(characteristic.getUuid().toString().equals(weightUUID)){
                 Log.i("onCharRead","read weight characteristic");
 
 //                lleno = characteristic.getStringValue(0).equals("1");
 //                Log.i("BLEFragOnCharRead", "Characteristic: " + characteristic.getStringValue(0)); //dataInput
 
-            }else if(characteristic.getUuid().toString().equals(UUID.fromString(timestampUUID))){
+            }else if(characteristic.getUuid().toString().equals(timestampUUID)){
                 Log.i("onCharRead","read timestamp characteristic");
 //                girado = characteristic.getStringValue(0).equals("1");
 //                Log.i("BLEFragOnCharRead", "Characteristic: " + characteristic.getStringValue(0)); //dataInput
             }else{
-                Log.e("BLE Read: ","No characteristic matches given UUIDs");
+                Log.e("BLE Read: ","No characteristic matches any given UUID");
             }
 
             listaChars.remove(listaChars.get(listaChars.size() - 1));
@@ -304,7 +306,7 @@ public class MainActivity extends AppCompatActivity
                     e.printStackTrace();
                 }
                 //Generate new received measurement object
-                homeFragment.setTextUser("chocolate");
+                //homeFragment.setTextUser("chocolate");
                 gatt.discoverServices();
 
             }
@@ -331,7 +333,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onResume() {
         super.onResume();
-        bt = Bluetooth.getInstance(this);
+//        bt = Bluetooth.getInstance(this);
         macbt = preferences.getString("macbt", null);
         Log.i(null, "onResume: macbt: " + macbt);
         // Bluetooth is enabled?
@@ -340,14 +342,16 @@ public class MainActivity extends AppCompatActivity
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         }
         if (macbt != null && !bt.isScanning() && bt.getBluetoothDevice()==null) {
-            Log.i("MainAct","onResume: bt.scanLeDevice()");
-            bt.scanLeDevice(true);
+            Log.i("MainAct","onResume: scanLeDevice()");
+//            bt.scanLeDevice(true);
+            scanLeDevice(true);
         }
     }
     @Override
     public void onPause() {
         super.onPause();
         Bluetooth.getInstance(this).scanLeDevice(false); //porque se pondrá a escanear la activity BluetoothAct.
+        scanLeDevice(false);
     }
 
 }
