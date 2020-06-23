@@ -18,14 +18,11 @@ public class HomeFragment extends Fragment {
     private TextView textTimestamp;
 
     public String getTextUser() {return textUser.getText().toString();}
-    public void setTextUser(String text) {
-        textUser.setText(text);}
+    public void setTextUser(String text) {textUser.setText(text);}
     public String getTextWeight() {return textWeight.getText().toString();}
-    public void setTextWeight(String text) {
-        textWeight.setText(text);}
+    public void setTextWeight(String text) {textWeight.setText(text);}
     public String getTextTimestamp() {return textTimestamp.getText().toString();}
-    public void setTextTimestamp(String text) {
-        textTimestamp.setText(text);}
+    public void setTextTimestamp(String text) {textTimestamp.setText(text);}
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {

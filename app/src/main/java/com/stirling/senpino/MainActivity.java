@@ -21,6 +21,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.stirling.senpino.ui.dashboard.DashboardFragment;
@@ -36,9 +37,6 @@ import static java.lang.Thread.sleep;
 
 public class MainActivity extends AppCompatActivity
         implements BottomNavigationView.OnNavigationItemSelectedListener {
-
-
-
 
 //==============TODO LO RELACIONADO CON BLUETOOTH DEBERÍA IR EN UN BACKGROUND SERVICE PARA QUE SE PUEDA CONECTAR AL DISPOSITIVO AUNQUE LA APP NO ESTÉ ABIERTA==========//
 //Posible solución?: https://stackoverflow.com/questions/47007666/how-to-scan-and-connect-ble-devices-when-app-is-in-background-in-android
@@ -63,6 +61,14 @@ public class MainActivity extends AppCompatActivity
     private String weightUUID = "beb5483e-36e1-4688-b7fa-eb07361b26a5";
     private String timestampUUID = "beb5483e-36e1-4688-b7fa-eb07361b26a6";
 
+    private String user;
+    private String weight;
+    private String timestamp;
+
+    public TextView userText;
+    public TextView weightText;
+    public TextView timestampText;
+
     SharedPreferences preferences;
     private String TAG = "TAG";
     private String macbt = null;
@@ -70,8 +76,6 @@ public class MainActivity extends AppCompatActivity
     private boolean mScanning;
     private boolean cambioConectado;
     private boolean cambioDesconectado;
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +89,10 @@ public class MainActivity extends AppCompatActivity
         homeFragment = new HomeFragment();
         dashboardFragment = new DashboardFragment();
         dispositivosFragment = new DispositivosFragment();
+
+        userText = (TextView) findViewById(R.id.textValorUsuario);
+        weightText = (TextView) findViewById(R.id.textValorPeso);
+        timestampText = (TextView) findViewById(R.id.textValorTimestamp);
 
         Log.i("MainAct","onCreate");
 
@@ -238,23 +246,6 @@ public class MainActivity extends AppCompatActivity
 
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
-//            List<BluetoothGattService> services = gatt.getServices();
-//            Log.i("BLEFrag", "Services: " + services.toString());
-//            BluetoothGattCharacteristic characTemp = null;
-//            BluetoothGattCharacteristic characGiro = null;
-//            BluetoothGattCharacteristic characLleno = null;
-//
-//            gattServiceD = services.get(2);
-//
-//            characLleno = gattServiceD.getCharacteristic(UUID.fromString(charUUID2));
-//            characGiro = gattServiceD.getCharacteristic(UUID.fromString(charUUID3));
-//            characTemp = gattServiceD.getCharacteristic(UUID.fromString(charUUID));
-//            listaChars.add(characTemp);
-//            listaChars.add(characGiro);
-//            listaChars.add(characLleno);
-//
-//            requestCharacteristics(gatt);
-
             serviceGatt = gatt.getService(UUID.fromString(serviceUUID)); //we get the service
             userCharacteristic = serviceGatt.getCharacteristic(UUID.fromString(userUUID));
             weightCharacteristic = serviceGatt.getCharacteristic(UUID.fromString(weightUUID));
@@ -272,24 +263,45 @@ public class MainActivity extends AppCompatActivity
                                          BluetoothGattCharacteristic characteristic, int status) {
             Log.i("onCharRead","Entered onCharacteristicRead");
 
-
-
             if(characteristic.getUuid().toString().equals(userUUID)){
-                Log.i("onCharRead","read user characteristic");
-
-//                tempString = characteristic.getStringValue(0);
-//                temp = Integer.parseInt(tempString);
-//                Log.i("BLEFragOnCharRead", "Characteristic: " + tempString); //dataInput
+                user = characteristic.getStringValue(0);
+                Log.i("onCharRead","read user characteristic: " + user);
+                runOnUiThread(new Runnable() { //change textView with value for testing purposes
+                    @Override
+                    public void run() {
+                        Fragment frag = getSupportFragmentManager().findFragmentById(R.id.frame_layout);
+                        TextView tv = (TextView) frag.getView().findViewById(R.id.textValorUsuario);
+                        if (tv!=null & user!=null){
+                            tv.setText(user);
+                        }
+                    }
+                });
             }else if(characteristic.getUuid().toString().equals(weightUUID)){
-                Log.i("onCharRead","read weight characteristic");
-
-//                lleno = characteristic.getStringValue(0).equals("1");
-//                Log.i("BLEFragOnCharRead", "Characteristic: " + characteristic.getStringValue(0)); //dataInput
-
+                weight = characteristic.getStringValue(0);
+                Log.i("onCharRead","read weight characteristic: " + weight);
+                runOnUiThread(new Runnable() { //change textView with value for testing purposes
+                    @Override
+                    public void run() {
+                        Fragment frag = getSupportFragmentManager().findFragmentById(R.id.frame_layout);
+                        TextView tv = (TextView) frag.getView().findViewById(R.id.textValorPeso);
+                        if (tv!=null & weight!=null){
+                            tv.setText(weight);
+                        }
+                    }
+                });
             }else if(characteristic.getUuid().toString().equals(timestampUUID)){
-                Log.i("onCharRead","read timestamp characteristic");
-//                girado = characteristic.getStringValue(0).equals("1");
-//                Log.i("BLEFragOnCharRead", "Characteristic: " + characteristic.getStringValue(0)); //dataInput
+                timestamp = characteristic.getStringValue(0);
+                Log.i("onCharRead","read timestamp characteristic: " + timestamp);
+                runOnUiThread(new Runnable() { //change textView with value for testing purposes
+                    @Override
+                    public void run() {
+                        Fragment frag = getSupportFragmentManager().findFragmentById(R.id.frame_layout);
+                        TextView tv = (TextView) frag.getView().findViewById(R.id.textValorTimestamp);
+                        if (tv!=null & timestamp!=null){
+                            tv.setText(timestamp);
+                        }
+                    }
+                });
             }else{
                 Log.e("BLE Read: ","No characteristic matches any given UUID");
             }
@@ -306,14 +318,15 @@ public class MainActivity extends AppCompatActivity
                     e.printStackTrace();
                 }
                 //Generate new received measurement object
-                //homeFragment.setTextUser("chocolate");
-                gatt.discoverServices();
+                //
 
+                ///////////////////////////////////////////////////////
+                gatt.discoverServices();
             }
         }
         public void requestCharacteristics(BluetoothGatt gatt) {
             gatt.readCharacteristic(listaChars.get(listaChars.size()-1));
-            Log.i("requestCharRead","Llamado === RRRRRRR");
+            Log.i("requestCharRead","gatt.readCharacteristic(listChars) called");
         }
         @Override
         public synchronized void onCharacteristicChanged(BluetoothGatt gatt,
