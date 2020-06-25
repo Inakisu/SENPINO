@@ -69,9 +69,10 @@ public class MainActivity extends AppCompatActivity
     public TextView weightText;
     public TextView timestampText;
 
+    public ArrayList<Measurement> measArrayList;
     SharedPreferences preferences;
     private String TAG = "TAG";
-    private String macbt = null;
+    private String macbt;
     private Handler mHandler;
     private boolean mScanning;
     private boolean cambioConectado;
@@ -98,16 +99,13 @@ public class MainActivity extends AppCompatActivity
 
         //SharedPreferences
         preferences = getSharedPreferences("preferencias",Context.MODE_PRIVATE);
-        macbt = preferences.getString("macbt", null);
+        macbt = preferences.getString("macbt", " ");
 
-        //Search for previously bonded devices
-//        Bluetooth.getInstance().findDevices(this);
-//        Bluetooth.getInstance(this).scanLeDevice(true);
+        //Search for devices, in case there is a known one nearby
         if(!macbt.equals(null)){
             scanLeDevice(true);
         }
-        //It should connect to previously bonded devices stored in Android BT cache
-
+        //It should connect to previously connected devices with autoconnect stored in Android BT cache
 
     }
 
@@ -318,9 +316,9 @@ public class MainActivity extends AppCompatActivity
                     e.printStackTrace();
                 }
                 //Generate new received measurement object
-                //
+                // Añadir a una lista que obtendremos desde frgament a la hora de refrescar
 
-                ///////////////////////////////////////////////////////
+                ///////////////////////////////////////////
                 gatt.discoverServices();
             }
         }
@@ -354,7 +352,7 @@ public class MainActivity extends AppCompatActivity
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         }
-        if (macbt != null && !bt.isScanning() && bt.getBluetoothDevice()==null) {
+        if (macbt != null && !isScanning()) {
             Log.i("MainAct","onResume: scanLeDevice()");
 //            bt.scanLeDevice(true);
             scanLeDevice(true);
