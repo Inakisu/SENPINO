@@ -28,6 +28,7 @@ import com.stirling.senpino.ui.dashboard.DashboardFragment;
 import com.stirling.senpino.ui.home.HomeFragment;
 import com.stirling.senpino.ui.notifications.DispositivosFragment;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -91,15 +92,16 @@ public class MainActivity extends AppCompatActivity
         dashboardFragment = new DashboardFragment();
         dispositivosFragment = new DispositivosFragment();
 
-        userText = (TextView) findViewById(R.id.textValorUsuario);
-        weightText = (TextView) findViewById(R.id.textValorPeso);
-        timestampText = (TextView) findViewById(R.id.textValorTimestamp);
+//        userText = (TextView) findViewById(R.id.textValorUsuario);
+//        weightText = (TextView) findViewById(R.id.textValorPeso);
+//        timestampText = (TextView) findViewById(R.id.textValorTimestamp);
 
         Log.i("MainAct","onCreate");
 
         //SharedPreferences
         preferences = getSharedPreferences("preferencias",Context.MODE_PRIVATE);
         macbt = preferences.getString("macbt", " ");
+
 
         //Search for devices, in case there is a known one nearby
         if(!macbt.equals(null)){
@@ -130,7 +132,8 @@ public class MainActivity extends AppCompatActivity
 
         return true;
     }
-    //Stablishes the fragment to be shown on app launch
+    //Stablishes the fragment to be shown on a
+    // pp launch
     private void setInitialFragment() {
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             fragmentTransaction.add(R.id.frame_layout, new HomeFragment());
@@ -264,7 +267,7 @@ public class MainActivity extends AppCompatActivity
             if(characteristic.getUuid().toString().equals(userUUID)){
                 user = characteristic.getStringValue(0);
                 Log.i("onCharRead","read user characteristic: " + user);
-                runOnUiThread(new Runnable() { //change textView with value for testing purposes
+                /*runOnUiThread(new Runnable() { //change textView with value for testing purposes
                     @Override
                     public void run() {
                         Fragment frag = getSupportFragmentManager().findFragmentById(R.id.frame_layout);
@@ -273,11 +276,11 @@ public class MainActivity extends AppCompatActivity
                             tv.setText(user);
                         }
                     }
-                });
+                });*/
             }else if(characteristic.getUuid().toString().equals(weightUUID)){
                 weight = characteristic.getStringValue(0);
                 Log.i("onCharRead","read weight characteristic: " + weight);
-                runOnUiThread(new Runnable() { //change textView with value for testing purposes
+                /*runOnUiThread(new Runnable() { //change textView with value for testing purposes
                     @Override
                     public void run() {
                         Fragment frag = getSupportFragmentManager().findFragmentById(R.id.frame_layout);
@@ -286,11 +289,11 @@ public class MainActivity extends AppCompatActivity
                             tv.setText(weight);
                         }
                     }
-                });
+                });*/
             }else if(characteristic.getUuid().toString().equals(timestampUUID)){
                 timestamp = characteristic.getStringValue(0);
                 Log.i("onCharRead","read timestamp characteristic: " + timestamp);
-                runOnUiThread(new Runnable() { //change textView with value for testing purposes
+                /*runOnUiThread(new Runnable() { //change textView with value for testing purposes
                     @Override
                     public void run() {
                         Fragment frag = getSupportFragmentManager().findFragmentById(R.id.frame_layout);
@@ -299,7 +302,7 @@ public class MainActivity extends AppCompatActivity
                             tv.setText(timestamp);
                         }
                     }
-                });
+                });*/
             }else{
                 Log.e("BLE Read: ","No characteristic matches any given UUID");
             }
@@ -315,10 +318,24 @@ public class MainActivity extends AppCompatActivity
                 }catch (InterruptedException e) {
                     e.printStackTrace();
                 }
+                /////////////////////////////////////////////
                 //Generate new received measurement object
-                // Añadir a una lista que obtendremos desde frgament a la hora de refrescar
-
-                ///////////////////////////////////////////
+                //
+                //
+                Measurement measurement = new Measurement(user, weight, timestamp);
+                // Add the measurement to an array list
+                measArrayList.add(measurement);
+                //Add the arrayList to sharedPreferences //se supone que pisa lo qu ehubiese antes en SP con la misma key, no?
+                try {
+                    preferences.edit().putString("MARRAYKEY", ObjectSerializer.serialize(measArrayList));
+                    preferences.edit().apply();     //"handles the data in background"
+                    //preferences.edit().commit();  //"stores it in database inmediatly"
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                //
+                //
+                /////////////////////////////////////////////
                 gatt.discoverServices();
             }
         }
@@ -329,7 +346,6 @@ public class MainActivity extends AppCompatActivity
         @Override
         public synchronized void onCharacteristicChanged(BluetoothGatt gatt,
                                                          BluetoothGattCharacteristic characteristic) {
-
             Log.i("infoFrag", "onCharacteristicChanged");
             gatt.discoverServices();
 //            Log.i("BLEFragOnCharChanged", "Characteristic: " + tempString);
