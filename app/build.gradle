@@ -47,6 +47,7 @@ dependencies {
     //elasticsearch
     //implementation 'org.elasticsearch.client:elasticsearch-rest-high-level-client:7.3.2'
     //Librería BLE de....nadie. La de Nordic Semiconductors necesita librerías androidX y todavía es un dolor de huevos usarlas porque otras librerías no están actualizadas para poder trabajar con androidX. Si lo intentas ten mucha, MUCHA paciencia. 06/2020
+    implementation 'com.github.PhilJay:MPAndroidChart:v3.0.3'
 
 
 
