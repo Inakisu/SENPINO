@@ -2,10 +2,12 @@ package com.stirling.senpino.ui.home;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Canvas;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,6 +22,8 @@ import com.google.gson.reflect.TypeToken;
 import com.stirling.senpino.Measurement;
 import com.stirling.senpino.R;
 import com.stirling.senpino.ui.MeasurementDataAdapter;
+import com.stirling.senpino.ui.SwipeController;
+import com.stirling.senpino.ui.SwipeControllerActions;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -35,6 +39,7 @@ public class HomeFragment extends Fragment {
     private ArrayList<Measurement> arListMeas;
     private SwipeRefreshLayout swipeRefreshLayout;
     private MeasurementDataAdapter mAdapter;
+    SwipeController swipeController = null;
 
     public String getTextUser() {return textUser.getText().toString();}
     public void setTextUser(String text) {textUser.setText(text);}
@@ -55,6 +60,7 @@ public class HomeFragment extends Fragment {
         super.onViewCreated(view, savedInstance);
         //we'll fill this arrayList from shared preferences
         arListMeas = new ArrayList<Measurement>();
+
 
         swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeToRefresh);
         swipeRefreshLayout.setOnRefreshListener(
@@ -96,10 +102,31 @@ public class HomeFragment extends Fragment {
     }
 
     private void setupRecyclerView(){
+
+
         RecyclerView recyclerView = (RecyclerView) getView().findViewById(R.id.recyclerView);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(),
-                LinearLayoutManager.VERTICAL, false));
+
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(), LinearLayoutManager.VERTICAL, false));
         recyclerView.setAdapter(mAdapter);
+
+        swipeController = new SwipeController(new SwipeControllerActions() {
+            @Override
+            public void onRightClicked(int position) {
+                //mAdapter.players.remove(position);
+                mAdapter.notifyItemRemoved(position);
+                mAdapter.notifyItemRangeChanged(position, mAdapter.getItemCount());
+            }
+        });
+
+        ItemTouchHelper itemTouchhelper = new ItemTouchHelper(swipeController);
+        itemTouchhelper.attachToRecyclerView(recyclerView);
+
+        recyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
+            @Override
+            public void onDraw(Canvas c, RecyclerView parent, RecyclerView.State state) {
+                swipeController.onDraw(c);
+            }
+        });
     }
 
 }
