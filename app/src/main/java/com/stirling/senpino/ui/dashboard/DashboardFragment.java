@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,6 +36,7 @@ public class DashboardFragment extends Fragment {
     private LineChart chart;
     SharedPreferences preferences;
     private ArrayList<Measurement> arListMeas;
+    private SwipeRefreshLayout swipeRefreshLayout;
     private int lastX = 0;
     private List<Entry> entries = new ArrayList<Entry>();
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -57,11 +59,25 @@ public class DashboardFragment extends Fragment {
         initializeChart(chart);
 
 
+        swipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.swipeToRefresh);
+        swipeRefreshLayout.setOnRefreshListener(
+                new SwipeRefreshLayout.OnRefreshListener() {
+                    @Override
+                    public void onRefresh() {
+                        Log.i("RefreshLayout", "onRefresh called from SwipeRefreshLayout");
 
+                        // This method performs the actual data-refresh operation.
+                        // The method calls setRefreshing(false) when it's finished.
+                        initializeChart(chart);
+                        swipeRefreshLayout.setRefreshing(false);
+                    }
+                }
+        );
 
     }
 
     private void initializeChart(LineChart chart){
+        entries.clear();
         String jsonArList = preferences.getString("MARRAYKEY","");
         Type type = new TypeToken<ArrayList<Measurement>>(){}.getType();
         Gson gson = new Gson();
