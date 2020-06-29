@@ -25,7 +25,7 @@ public class MeasurementDataAdapter extends RecyclerView.Adapter<MeasurementData
         }
     }
 
-    public MeasurementDataAdapter(List<Measurement> players) {
+    public MeasurementDataAdapter(List<Measurement> measurements) {
         this.measurements = measurements;
     }
 
@@ -48,9 +48,9 @@ public class MeasurementDataAdapter extends RecyclerView.Adapter<MeasurementData
 
     @Override
     public int getItemCount() {
-        if(measurements != null){
+//        if(measurements != null){
             return measurements.size();
-        }
-        return 0;
+//        }
+//        return 0;
     }
 }
