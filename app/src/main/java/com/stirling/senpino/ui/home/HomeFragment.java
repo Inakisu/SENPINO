@@ -75,6 +75,10 @@ public class HomeFragment extends Fragment {
             arListMeas = (ArrayList<Measurement>) ObjectSerializer.deserialize(
                     preferences.getString("MARRAYKEY",
                     ObjectSerializer.serialize(new ArrayList<Measurement>())));
+            for (int i = 0; arListMeas.size() >i ; i++){
+
+            }
+
         } catch (IOException e) {
             e.printStackTrace();
         }
