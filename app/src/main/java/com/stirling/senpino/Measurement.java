@@ -7,7 +7,9 @@ public class Measurement {
     private String timestamp;
 
     public Measurement(String user, String weight, String timestamp){
-
+        this.user = user;
+        this.weight = weight;
+        this.timestamp = timestamp;
     }
 
     //Getters and setters

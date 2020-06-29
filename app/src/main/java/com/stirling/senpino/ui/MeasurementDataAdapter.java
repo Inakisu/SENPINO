@@ -11,7 +11,7 @@ import com.stirling.senpino.R;
 
 import java.util.List;
 
-class MeasurementDataAdapter extends RecyclerView.Adapter<MeasurementDataAdapter.MeasurementViewHolder> {
+public class MeasurementDataAdapter extends RecyclerView.Adapter<MeasurementDataAdapter.MeasurementViewHolder> {
     private List<Measurement> measurements;
 
     public class MeasurementViewHolder extends RecyclerView.ViewHolder {
@@ -48,6 +48,9 @@ class MeasurementDataAdapter extends RecyclerView.Adapter<MeasurementDataAdapter
 
     @Override
     public int getItemCount() {
-        return measurements.size();
+        if(measurements != null){
+            return measurements.size();
+        }
+        return 0;
     }
 }

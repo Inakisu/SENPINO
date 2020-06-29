@@ -24,6 +24,8 @@ import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.gson.Gson;
+import com.stirling.senpino.ui.MeasurementDataAdapter;
 import com.stirling.senpino.ui.dashboard.DashboardFragment;
 import com.stirling.senpino.ui.home.HomeFragment;
 import com.stirling.senpino.ui.notifications.DispositivosFragment;
@@ -45,6 +47,8 @@ public class MainActivity extends AppCompatActivity
     private  HomeFragment homeFragment;
     private  DashboardFragment dashboardFragment;
     private  DispositivosFragment dispositivosFragment;
+
+
 
     private static final int REQUEST_ENABLE_BT = 1;
     BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -87,6 +91,8 @@ public class MainActivity extends AppCompatActivity
         bottomNav.setOnNavigationItemSelectedListener(this);
         bt = Bluetooth.getInstance(this);
         setInitialFragment();
+
+        measArrayList = new ArrayList<Measurement>();
 
         homeFragment = new HomeFragment();
         dashboardFragment = new DashboardFragment();
@@ -322,17 +328,21 @@ public class MainActivity extends AppCompatActivity
                 //Generate new received measurement object
                 //
                 //
-                Measurement measurement = new Measurement(user, weight, timestamp);
-                // Add the measurement to an array list
-                measArrayList.add(measurement);
-                //Add the arrayList to sharedPreferences //se supone que pisa lo qu ehubiese antes en SP con la misma key, no?
-                try {
-                    preferences.edit().putString("MARRAYKEY", ObjectSerializer.serialize(measArrayList));
-                    preferences.edit().apply();     //"handles the data in background"
-                    //preferences.edit().commit();  //"stores it in database inmediatly"
-                } catch (IOException e) {
-                    e.printStackTrace();
+                if(user!=null || weight!=null || timestamp!=null){
+                    Measurement measurement = new Measurement(user, weight, timestamp);
+                    // Add the measurement to an array list
+                    measArrayList.add(measurement);
+                    //Add the arrayList to sharedPreferences //se supone que pisa lo qu ehubiese antes en SP con la misma key, no?
+                    Gson gson = new Gson();
+                    String jsonArList = gson.toJson(measArrayList);
+                    SharedPreferences.Editor editor = preferences.edit();
+                    editor.putString("MARRAYKEY", jsonArList);
+                    editor.commit();
+//                    preferences.edit().putString("MARRAYKEY", jsonArList);
+//                    preferences.edit().apply();     //"handles the data in background"
+//                    preferences.edit().commit();  //"stores it in database inmediatly"
                 }
+
                 //
                 //
                 /////////////////////////////////////////////

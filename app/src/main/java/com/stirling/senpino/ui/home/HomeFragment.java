@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,11 +15,14 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 import com.stirling.senpino.Measurement;
-import com.stirling.senpino.ObjectSerializer;
 import com.stirling.senpino.R;
+import com.stirling.senpino.ui.MeasurementDataAdapter;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 public class HomeFragment extends Fragment {
@@ -29,6 +34,7 @@ public class HomeFragment extends Fragment {
     SharedPreferences preferences;
     private ArrayList<Measurement> arListMeas;
     private SwipeRefreshLayout swipeRefreshLayout;
+    private MeasurementDataAdapter mAdapter;
 
     public String getTextUser() {return textUser.getText().toString();}
     public void setTextUser(String text) {textUser.setText(text);}
@@ -60,6 +66,8 @@ public class HomeFragment extends Fragment {
                         // This method performs the actual data-refresh operation.
                         // The method calls setRefreshing(false) when it's finished.
                         myUpdateOperation();
+                        setupRecyclerView();
+                        swipeRefreshLayout.setRefreshing(false);
                     }
                 }
         );
@@ -71,17 +79,27 @@ public class HomeFragment extends Fragment {
     }
     //Update the view with measurements stored in list, wich is first obtained from shared preferences
     private void myUpdateOperation() {
-        try {
-            arListMeas = (ArrayList<Measurement>) ObjectSerializer.deserialize(
-                    preferences.getString("MARRAYKEY",
-                    ObjectSerializer.serialize(new ArrayList<Measurement>())));
+
+        String jsonArList = preferences.getString("MARRAYKEY","");
+        Type type = new TypeToken<ArrayList<Measurement>>(){}.getType();
+        Gson gson = new Gson();
+        arListMeas = gson.fromJson(jsonArList, type);
+        if(!arListMeas.isEmpty()){
             for (int i = 0; arListMeas.size() >i ; i++){
-
+                Log.i("arList","Meas List from SP: " + arListMeas.get(i).getUser()
+                        +", " + arListMeas.get(i).getTimestamp() + ", " + arListMeas.get(i).getWeight());
             }
-
-        } catch (IOException e) {
-            e.printStackTrace();
         }
+        mAdapter = new MeasurementDataAdapter(arListMeas);
+
+
+    }
+
+    private void setupRecyclerView(){
+        RecyclerView recyclerView = (RecyclerView) getView().findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getActivity(),
+                LinearLayoutManager.VERTICAL, false));
+        recyclerView.setAdapter(mAdapter);
     }
 
 }
